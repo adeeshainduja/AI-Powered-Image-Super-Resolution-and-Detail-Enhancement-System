@@ -12,7 +12,7 @@ from models.network_swinir import SwinIR
 MODEL_PATH = os.path.join(
     PROJECT_ROOT,
     "models",
-    "001_classicalSR_DF2K_s64w8_SwinIR-M_x4.pth"
+    "003_realSR_BSRGAN_DFO_s64w8_SwinIR-M_x4_GAN.pth"
 )
 
 SCALE = 4
@@ -20,7 +20,8 @@ SCALE = 4
 
 def load_swinir_model(model_path=MODEL_PATH, scale=SCALE):
     """
-    Load pre-trained SwinIR classical super-resolution model.
+    Load pre-trained SwinIR real-world super-resolution model.
+    This model is better for blurry, noisy, compressed, and real-world low-quality images.
     """
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -39,7 +40,7 @@ def load_swinir_model(model_path=MODEL_PATH, scale=SCALE):
         embed_dim=180,
         num_heads=[6, 6, 6, 6, 6, 6],
         mlp_ratio=2,
-        upsampler="pixelshuffle",
+        upsampler="nearest+conv",
         resi_connection="1conv"
     )
 
@@ -55,7 +56,7 @@ def load_swinir_model(model_path=MODEL_PATH, scale=SCALE):
     model.to(device)
     model.eval()
 
-    print("SwinIR pre-trained model loaded successfully.")
+    print("Real-World SwinIR pre-trained model loaded successfully.")
 
     return model, device
 
