@@ -169,15 +169,63 @@ def preprocess_image(image_path, device, apply_denoise=False):
 # FUNCTION 6: SWINIR INFERENCE
 # ==========================================================
 
+_TILE_SIZE = 256   # max tile edge (pixels) — safe for 4 GB GPU with SwinIR-M
+_TILE_OVERLAP = 32 # overlap to blend seams between tiles
+_SCALE = 4         # must match the loaded model's upscale factor
+
+
 def run_swinir_inference(model, input_tensor):
     """
-    Run SwinIR model inference.
+    Run SwinIR inference using tiled processing so that arbitrarily
+    large inputs do not exhaust GPU memory.  Each tile is processed
+    independently; a weighted blend in the overlap region removes seams.
+    Falls back to a single forward pass when the image is small enough.
     """
+    _, _, h, w = input_tensor.shape
 
-    with torch.no_grad():
-        output_tensor = model(input_tensor)
+    # Small images: direct inference is fine
+    if h <= _TILE_SIZE and w <= _TILE_SIZE:
+        with torch.no_grad():
+            return model(input_tensor)
 
-    return output_tensor
+    device = input_tensor.device
+    stride = _TILE_SIZE - _TILE_OVERLAP
+    out_h = h * _SCALE
+    out_w = w * _SCALE
+
+    output = torch.zeros(1, 3, out_h, out_w, device=device)
+    weight = torch.zeros(1, 1, out_h, out_w, device=device)
+
+    # Build a 1-D Hann window and make a 2-D blending mask
+    hann_1d = torch.hann_window(_TILE_SIZE * _SCALE, periodic=False, device=device)
+    blend_mask = hann_1d.unsqueeze(0) * hann_1d.unsqueeze(1)  # (T, T)
+    blend_mask = blend_mask.unsqueeze(0).unsqueeze(0)          # (1, 1, T, T)
+
+    for y in range(0, h, stride):
+        for x in range(0, w, stride):
+            y_end = min(y + _TILE_SIZE, h)
+            x_end = min(x + _TILE_SIZE, w)
+            y_start = y_end - _TILE_SIZE if y_end - y < _TILE_SIZE else y
+            x_start = x_end - _TILE_SIZE if x_end - x < _TILE_SIZE else x
+
+            tile = input_tensor[:, :, y_start:y_end, x_start:x_end]
+
+            with torch.no_grad():
+                tile_out = model(tile)
+
+            oy = y_start * _SCALE
+            ox = x_start * _SCALE
+            ot_h = tile_out.shape[2]
+            ot_w = tile_out.shape[3]
+
+            # Trim blend mask to match actual tile output size
+            mask = blend_mask[:, :, :ot_h, :ot_w]
+
+            output[:, :, oy:oy + ot_h, ox:ox + ot_w] += tile_out * mask
+            weight[:, :, oy:oy + ot_h, ox:ox + ot_w] += mask
+
+    output = output / weight.clamp(min=1e-8)
+    return output
 
 
 # ==========================================================

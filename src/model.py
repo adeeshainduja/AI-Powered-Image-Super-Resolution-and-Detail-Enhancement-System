@@ -41,7 +41,8 @@ def load_swinir_model(model_path=MODEL_PATH, scale=SCALE):
         num_heads=[6, 6, 6, 6, 6, 6],
         mlp_ratio=2,
         upsampler="nearest+conv",
-        resi_connection="1conv"
+        resi_connection="1conv",
+        use_checkpoint=True,
     )
 
     checkpoint = torch.load(model_path, map_location=device)

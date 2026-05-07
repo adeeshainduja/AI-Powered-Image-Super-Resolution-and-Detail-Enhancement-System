@@ -1,5 +1,7 @@
 import os
+os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 import sys
+#import timm
 from celery import Celery
 
 sys.path.insert(0, "/app")
@@ -35,11 +37,18 @@ def enhance_image_task(self, job_id, input_path, scale, apply_denoise, apply_sha
 
     model, device = _get_model()
 
+    import torch
+
     input_tensor, original_size = preprocess_image(
         input_path, device, apply_denoise=apply_denoise
     )
     output_tensor = run_swinir_inference(model, input_tensor)
     enhanced = tensor_to_image(output_tensor)
+
+    # Release intermediate tensors before post-processing
+    del input_tensor, output_tensor
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
 
     if apply_sharpen:
         enhanced = sharpen_image(enhanced)

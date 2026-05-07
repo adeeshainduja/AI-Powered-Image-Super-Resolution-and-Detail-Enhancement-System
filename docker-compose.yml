@@ -61,7 +61,7 @@ services:
               count: 1
               capabilities: [gpu]
     restart: unless-stopped
-    command: celery -A worker worker --loglevel=info --concurrency=2
+    command: celery -A worker worker --loglevel=info --concurrency=1
   
   frontend:
     image: node:20-alpine
