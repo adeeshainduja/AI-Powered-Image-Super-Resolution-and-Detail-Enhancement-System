@@ -18,3 +18,5 @@ dump.rdb
 # Generated results
 results/
 *.png
+
+node_modules
