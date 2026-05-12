@@ -65,7 +65,7 @@ export default function HomePage() {
 
           <div className="lg:col-span-8 h-full min-h-[500px]">
             <DropZone file={file} onFileSelect={setFile} error={error} />
-            <ComparisonPreview />
+            {/* <ComparisonPreview /> */}
           </div>
         </div>
       </section>
