@@ -6,7 +6,7 @@ import torch
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(PROJECT_ROOT)
 
-from models.network_swinir import SwinIR
+from ml_backend.models.network_swinir import SwinIR
 
 
 MODEL_PATH = os.path.join(
