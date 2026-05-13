@@ -5,14 +5,22 @@ import torch
 # Add project root path so Python can find the models folder
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(PROJECT_ROOT)
+sys.path.append(os.path.join(PROJECT_ROOT, "ml_backend"))
 
-from ml_backend.models.network_swinir import SwinIR
+from models.network_swinir import SwinIR
 
 
-MODEL_PATH = os.path.join(
-    PROJECT_ROOT,
-    "models",
-    "003_realSR_BSRGAN_DFO_s64w8_SwinIR-M_x4_GAN.pth"
+MODEL_FILENAME = "003_realSR_BSRGAN_DFO_s64w8_SwinIR-M_x4_GAN.pth"
+DEFAULT_MODEL_CANDIDATES = [
+    os.path.join(PROJECT_ROOT, "models", MODEL_FILENAME),
+    os.path.join(PROJECT_ROOT, "ml_backend", "models", MODEL_FILENAME),
+]
+MODEL_PATH = os.getenv(
+    "MODEL_WEIGHTS_PATH",
+    next(
+        (path for path in DEFAULT_MODEL_CANDIDATES if os.path.exists(path)),
+        DEFAULT_MODEL_CANDIDATES[0],
+    ),
 )
 
 SCALE = 4

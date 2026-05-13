@@ -1,44 +1,73 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import Hero from '../components/Hero.jsx'
-import EnhancementPanel from '../components/EnhancementPanel.jsx'
-import DropZone from '../components/DropZone.jsx'
-import ComparisonPreview from '../components/ComparisonPreview.jsx'
-import { enhanceImage } from '../api/client.js'
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import Hero from "../components/Hero.jsx";
+import EnhancementPanel from "../components/EnhancementPanel.jsx";
+import DropZone from "../components/DropZone.jsx";
+
+import { enhanceImage } from "../api/client.js";
 
 export default function HomePage() {
-  const navigate = useNavigate()
-  const [scale, setScale] = useState(4)
-  const [denoise, setDenoise] = useState(true)
-  const [sharpen, setSharpen] = useState(false)
-  const [file, setFile] = useState(null)
-  const [uploading, setUploading] = useState(false)
-  const [error, setError] = useState(null)
+  const navigate = useNavigate();
+
+  const [scale, setScale] = useState(4);
+  const [denoise, setDenoise] = useState(false);
+  const [sharpen, setSharpen] = useState(false);
+  const [file, setFile] = useState(null);
+
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleEnhance = async () => {
-    if (!file || uploading) return
-    setUploading(true)
-    setError(null)
+    if (!file || uploading) return;
+
+    setUploading(true);
+    setError(null);
+
     try {
-      const { job_id } = await enhanceImage(file, { scale, denoise, sharpen })
+      const data = await enhanceImage(file, {
+        scale,
+        denoise,
+        sharpen,
+      });
+
+      const jobId = data.job?.jobId || data.job_id;
+      const resultUrl = data.resultUrl || data.result_url || `/result/${jobId}`;
+
+      if (!jobId) {
+        throw new Error("Job ID was not returned from backend.");
+      }
+
       sessionStorage.setItem(
-        `job:${job_id}`,
+        `job:${jobId}`,
         JSON.stringify({
           filename: file.name,
           scale,
           denoise,
           sharpen,
+          resultUrl,
+          originalSize: data.job?.originalSize || data.original_size,
+          finalSize: data.job?.finalSize || data.final_size,
+          processingTime: data.job?.processingTime || data.processing_time,
         })
-      )
-      navigate(`/job/${job_id}`, {
-        state: { inputUrl: URL.createObjectURL(file) },
-      })
+      );
+
+      navigate(`/job/${jobId}`, {
+        state: {
+          inputUrl: URL.createObjectURL(file),
+          resultUrl,
+          filename: file.name,
+          scale,
+          denoise,
+          sharpen,
+        },
+      });
     } catch (e) {
-      setError(e.message)
+      setError(e.message || "Image enhancement failed.");
     } finally {
-      setUploading(false)
+      setUploading(false);
     }
-  }
+  };
 
   return (
     <main className="relative">
@@ -65,10 +94,9 @@ export default function HomePage() {
 
           <div className="lg:col-span-8 h-full min-h-[500px]">
             <DropZone file={file} onFileSelect={setFile} error={error} />
-            {/* <ComparisonPreview /> */}
           </div>
         </div>
       </section>
     </main>
-  )
+  );
 }

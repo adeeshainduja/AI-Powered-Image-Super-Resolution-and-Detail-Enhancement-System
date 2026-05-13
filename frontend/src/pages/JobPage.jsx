@@ -56,7 +56,7 @@ export default function JobPage() {
 
   const params = {
     model: 'SwinIR',
-    scale: meta.scale ? `${meta.scale}×` : '—',
+    scale: meta.scale ? `${meta.scale}x` : '-',
     denoise: meta.denoise ? 'Enabled' : 'Disabled',
     sharpen: meta.sharpen ? 'Enabled' : 'Disabled',
   }

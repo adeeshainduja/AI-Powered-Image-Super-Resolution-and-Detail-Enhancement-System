@@ -1,11 +1,7 @@
-version: "3.9"
-
 services:
   redis:
     image: redis:7-alpine
     container_name: imagesr_redis
-    ports:
-      - "6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -15,14 +11,16 @@ services:
 
   backend:
     build:
-      context: ./backend
+      context: ./ml_backend
       dockerfile: Dockerfile
     container_name: imagesr_backend
     env_file: .env
+    environment:
+      - PYTHONPATH=/app
     volumes:
-      - ./backend:/app
+      - ./ml_backend:/app
       - ./src:/app/src
-      - ./models:/app/models
+      - ./ml_backend/models:/app/models
       - session_storage:/tmp/imagesr
     ports:
       - "8000:8000"
@@ -41,14 +39,17 @@ services:
 
   worker:
     build:
-      context: ./worker
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./worker/Dockerfile
     container_name: imagesr_worker
     env_file: .env
+    environment:
+      # We include /app (root) so it finds src/ and models/
+      # We include /app/ml_backend so it finds worker.py
+      - PYTHONPATH=/app:/app/ml_backend
     volumes:
-      - ./backend:/app
-      - ./src:/app/src
-      - ./models:/app/models
+      - .:/app
+      - ./ml_backend/models:/app/models
       - session_storage:/tmp/imagesr
     depends_on:
       redis:
@@ -61,22 +62,37 @@ services:
               count: 1
               capabilities: [gpu]
     restart: unless-stopped
-    command: celery -A worker worker --loglevel=info --concurrency=1
-  
+    # Using the module path relative to PYTHONPATH
+    command: celery -A ml_backend.worker worker --loglevel=info --concurrency=1
+
+  node_backend:
+    build:
+      context: ./node_backend
+      dockerfile: Dockerfile
+    container_name: imagesr_node
+    volumes:
+      - ./node_backend:/app
+      - /app/node_modules
+    environment:
+      - ML_SERVICE_URL=http://backend:8000
+    depends_on:
+      - backend
+    restart: unless-stopped
+
   frontend:
     image: node:20-alpine
     container_name: imagesr_frontend
     working_dir: /app
     environment:
-      VITE_API_TARGET: http://backend:8000
+      VITE_API_TARGET: http://node_backend:5000
     volumes:
       - ./frontend:/app
       - /app/node_modules
     ports:
-      - "5173:5173"        # Vite default port
+      - "5173:5173"        
     command: sh -c "npm install && npm run dev -- --host"
     depends_on:
-      - backend
+      - node_backend
 
   nginx:
     image: nginx:alpine

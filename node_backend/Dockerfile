@@ -1,17 +1,20 @@
-FROM pytorch/pytorch:2.6.0-cuda12.6-cudnn9-runtime
+# Use a lightweight Node image
+FROM node:20-alpine
 
-
+# Set the working directory inside the container
 WORKDIR /app
 
-# System dependencies for OpenCV
-RUN apt-get update && apt-get install -y \
-    libgl1-mesa-glx \
-    libglib2.0-0 \
-    && rm -rf /var/lib/apt/lists/*
+# Copy package files first (this makes future builds super fast)
+COPY package.json package-lock.json* ./
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Install dependencies
+RUN npm install
 
+# Copy the rest of your Node backend code
 COPY . .
 
-EXPOSE 8000
+# Expose the port your Express server uses
+EXPOSE 5000
+
+# Start the server
+CMD ["node", "server.js"]

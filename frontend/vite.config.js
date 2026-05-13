@@ -5,7 +5,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   const apiTarget = env.VITE_API_TARGET || 'http://localhost:8000'
 
-  const proxy = ['/enhance', '/status', '/result'].reduce((acc, path) => {
+  const proxy = ['/enhance', '/status', '/result', '/api/images'].reduce((acc, path) => {
     acc[path] = { target: apiTarget, changeOrigin: true }
     return acc
   }, {})

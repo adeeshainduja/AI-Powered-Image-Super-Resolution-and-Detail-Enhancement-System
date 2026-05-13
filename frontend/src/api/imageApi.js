@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://localhost:5000/api/images";
+const API_BASE_URL = "/api/images";
 
 export async function enhanceImage({
   image,
@@ -18,6 +18,17 @@ export async function enhanceImage({
     body: formData,
   });
 
+  const contentType = response.headers.get("content-type");
+
+  if (!contentType || !contentType.includes("application/json")) {
+    const text = await response.text();
+    console.error("Backend returned non-JSON response:", text);
+
+    throw new Error(
+      "Backend returned HTML instead of JSON. Check API URL and backend server."
+    );
+  }
+
   const data = await response.json();
 
   if (!response.ok) {
@@ -30,9 +41,17 @@ export async function enhanceImage({
 export async function getHistory() {
   const response = await fetch(`${API_BASE_URL}/history`);
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch history.");
+  const contentType = response.headers.get("content-type");
+
+  if (!contentType || !contentType.includes("application/json")) {
+    throw new Error("Backend returned HTML instead of JSON.");
   }
 
-  return response.json();
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || data.message || "Failed to fetch history.");
+  }
+
+  return data;
 }
