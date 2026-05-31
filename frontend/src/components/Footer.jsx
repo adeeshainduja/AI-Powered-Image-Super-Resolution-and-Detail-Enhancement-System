@@ -9,7 +9,7 @@ export default function Footer() {
             ImageSR AI
           </div>
           <p className="text-on-surface-variant font-body-sm text-body-sm">
-            © 2024 ImageSR AI. Precision processing for the near future.
+            © 2026 ImageSR AI. Precision processing for the near future.
           </p>
         </div>
         <div className="flex flex-wrap md:justify-end gap-md">

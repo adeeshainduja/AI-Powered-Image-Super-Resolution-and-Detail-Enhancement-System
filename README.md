@@ -81,8 +81,4 @@ Node.js Backend
 ML Backend / Worker Service
  │
  ▼
-<<<<<<< HEAD
 Enhanced Image Output
-=======
-Enhanced Image Output
->>>>>>> 3d9b5f8bb8c0698e3c202d11eba83ecbbf79f747
