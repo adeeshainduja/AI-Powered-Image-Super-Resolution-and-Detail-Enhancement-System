@@ -15,12 +15,13 @@ const JOBS = [
   {
     key: 'archviz',
     status: 'completed',
-    filename: 'archviz_render_final.jpg',
+    filename: 'archviz_render_final.jpg', 
     scale: '8X',
     date: 'Nov 24, 11:05 AM',
     meta: { icon: 'download', value: '42.5 MB' },
-    img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAx9e_BpLOgtnTW80HVGYUXoPxlpPAYPshdpNKVcujrHphZDLjM4OT8HNV7xjfPq7xtxK-9uQoKKVy16vHcQ91oLVsQ8dNiUdGDrNP4Cwt67OiqwK-qMhfC9UjpR-2JKhz5kJSGowVe6liUstBMENvMmeNx4jY_7PwOAZYDDUTcKGBkra67lu7Ntd7uiIXci7KdJlOzV3pNIXfL_E0BuLDLdWLrDfm9-8w5yhTWUPI_2wDuXTQXrxkougMpAUKPJUwtJ0XrpqmgFiE',
+    img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAx9e_BpL OgtnTW80HVGYUXoPxlpPAYPshdpNKVcujrHphZDLjM4OT8HNV7xjfPq7xtxK-9uQoKKVy16vHcQ91oLVsQ8dNiUdGDrNP4Cwt67OiqwK-qMhfC9UjpR-2JKhz5kJSGowVe6liUstBMENvMmeNx4jY_7PwOAZYDDUTcKGBkra67lu7Ntd7uiIXci7KdJlOzV3pNIXfL_E0BuLDLdWLrDfm9-8w5yhTWUPI_2wDuXTQXrxkougMpAUKPJUwtJ0XrpqmgFiE',
   },
+  
   {
     key: 'concept_car',
     status: 'completed',
