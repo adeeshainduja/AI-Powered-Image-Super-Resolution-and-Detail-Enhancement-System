@@ -205,8 +205,8 @@ def run_swinir_inference(model, input_tensor):
         for x in range(0, w, stride):
             y_end = min(y + _TILE_SIZE, h)
             x_end = min(x + _TILE_SIZE, w)
-            y_start = y_end - _TILE_SIZE if y_end - y < _TILE_SIZE else y
-            x_start = x_end - _TILE_SIZE if x_end - x < _TILE_SIZE else x
+            y_start = max(0, y_end - _TILE_SIZE if y_end - y < _TILE_SIZE else y)
+            x_start = max(0, x_end - _TILE_SIZE if x_end - x < _TILE_SIZE else x)
 
             tile = input_tensor[:, :, y_start:y_end, x_start:x_end]
 
