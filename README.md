@@ -369,10 +369,12 @@ https://youtu.be/vyPhAFuzRL4
 # 👨‍💻 Developer
 
 ### Adeesha Induja
+### Induwara-Suraweera
 
 GitHub
 
 https://github.com/adeeshainduja
+https://github.com/induwara-amaranga
 
 ---
 
