@@ -340,7 +340,7 @@ Application starts automatically.
 ## Before vs After
 
 > Replace the image below with your own comparison screenshot.
-[Results](Application/Test_enhancement.jpeg)
+![Results](Application/Test_enhancement.jpeg)
 
 ---
 
