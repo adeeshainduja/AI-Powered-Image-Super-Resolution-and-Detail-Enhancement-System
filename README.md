@@ -341,7 +341,8 @@ Application starts automatically.
 
 > Replace the image below with your own comparison screenshot.
 
-![Results](images/result.png)
+![Results](Application
+/Test_enhancement.jpeg)
 
 ---
 
